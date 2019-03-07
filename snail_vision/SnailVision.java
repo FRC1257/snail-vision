@@ -59,6 +59,7 @@ public class SnailVision {
     public boolean printIterationTime;
 
     public SnailVision(boolean utilizeGyro){
+        retainedData = 60;
         TargetX = new ArrayList<Double>(); // Target's angle on the x-axis 
         TargetY = new ArrayList<Double>(); // Target's angle on the y-axis 
         TargetA = new ArrayList<Double>(); // Target's area on the screen
@@ -70,7 +71,20 @@ public class SnailVision {
         TargetHorizontal = new ArrayList<Double>(); // Horizontal length of the fitted bounding box
         TargetVertical = new ArrayList<Double>(); // Vertical length of the fitted bounding box
         currentPipeline = new ArrayList<Byte>(); // Array because it might be used when switching pipeline. Byte saves RAM
-        retainedData = 60;
+        
+        for(int i = 0; i < retainedData; i++){ // To prevent ArrayOutofBoundsException
+            TargetX.add(0.0);
+            TargetY.add(0.0);
+            TargetA.add(0.0);
+            TargetV.add(true);
+            TargetS.add(0.0);
+            Latency.add(0);
+            TargetShort.add(0.0);
+            TargetLong.add(0.0);
+            TargetHorizontal.add(0.0);
+            TargetVertical.add(0.0);
+            currentPipeline.add((byte) 0);
+        }
 
         useGyro = utilizeGyro;
         if(useGyro == true){
@@ -119,22 +133,26 @@ public class SnailVision {
         currentPipeline.add(0, (byte) tgetpipeE.getDouble(0));
             
         if(TargetX.size() > retainedData){ // Removes the last entry in the arraylist and shifts over the rest
-            TargetX.remove(retainedData); // Target's angle on the x-axis 
-            TargetY.remove(retainedData); // Target's angle on the y-axis 
-            TargetA.remove(retainedData); // Target's area on the screen
-            TargetV.remove(retainedData); // Target's visibility on the screen 
-            TargetS.remove(retainedData); // Target's skew/rotation on the screen
-            Latency.remove(retainedData); // Latency of the camera in miliseconds
-            TargetShort.remove(retainedData); // Sidelength of shortest side of the fitted bounding box (pixels)
-            TargetLong.remove(retainedData); // Sidelength of longest side of the fitted bounding box (pixels)
-            TargetHorizontal.remove(retainedData); // Horizontal length of the fitted bounding box
-            TargetVertical.remove(retainedData); // Vertical length of the fitted bounding box
-            currentPipeline.remove(retainedData); // Array because it might be used when switching pipeline
+            for(int i = 0; i < TargetX.size() - retainedData; i++){
+                TargetX.remove(retainedData); // Target's angle on the x-axis 
+                TargetY.remove(retainedData); // Target's angle on the y-axis 
+                TargetA.remove(retainedData); // Target's area on the screen
+                TargetV.remove(retainedData); // Target's visibility on the screen 
+                TargetS.remove(retainedData); // Target's skew/rotation on the screen
+                Latency.remove(retainedData); // Latency of the camera in miliseconds
+                TargetShort.remove(retainedData); // Sidelength of shortest side of the fitted bounding box (pixels)
+                TargetLong.remove(retainedData); // Sidelength of longest side of the fitted bounding box (pixels)
+                TargetHorizontal.remove(retainedData); // Horizontal length of the fitted bounding box
+                TargetVertical.remove(retainedData); // Vertical length of the fitted bounding box
+                currentPipeline.remove(retainedData); // Array because it might be used when switching pipeline
+            }
         }
     }
 
     public double angleCorrect(){
-        double tx = TargetX.get(0); // Gets the angle of how far away from the corsshair the object is
+        if(TargetX.size() > 0){
+            double tx = TargetX.get(0); // Gets the angle of how far away from the corsshair the object is
+        }
 
         double Kf = ANGLE_CORRECT_F;  // Minimum motor input to move robot in case P can't do it 
         double Kp = ANGLE_CORRECT_P; // for PID
@@ -158,7 +176,7 @@ public class SnailVision {
         if(DISTANCE_ESTIMATION_METHOD.equals("area")){
             currentDistance = areaDistance(Target);
         }
-        else if(DISTANCE_ESTIMATION_METHOD("trig")){
+        else if(DISTANCE_ESTIMATION_METHOD.equals("trig")){
             currentDistance = trigDistance(Target);
         }
         else{
@@ -176,10 +194,15 @@ public class SnailVision {
     }
     
     public double areaDistance(Target Target){ // Returns inches significant up to the tenths place
-        double ta = TargetA.get(0);
-        boolean tv0 = TargetV.get(0); // Looks back 3 frames to see if the target was on the screen just to make sure that the limelight glitched and did not see the target for a split second
-        boolean tv1 = TargetV.get(1);
-        boolean tv2 = TargetV.get(2);
+        if(TargetA.size() > 0){
+            double ta = TargetA.get(0);
+        }
+        if(TargetV.size() > 2){
+            boolean tv0 = TargetV.get(0); // Looks back 3 frames to see if the target was on the screen just to make sure that the limelight glitched and did not see the target for a split second
+            boolean tv1 = TargetV.get(1);
+            boolean tv2 = TargetV.get(2);
+        }
+
         double minDifference = 10000; // Just so that it finds a smaller value
         int minIndex = Target.AREA_PERCENT_MEASUREMENTS - 1; // The indexes of the array of percentages is the distance that the robot is from the target in inches
          if(tv0 == true || tv1 == true || tv2 == true){ // If the target is on screen in the past 3 frames
@@ -207,19 +230,28 @@ public class SnailVision {
 
     public double trigDistance(Target Target){ // More accurate than area distance but the target has to be high in the air above the camera
         // Distance from Target = (Target Height - Camera Height) / tan(Angle of the Camera + Angle of the target above the Crosshair)
-        double distanceFromTarget = (Target.TARGET_HEIGHT - CAMERA_HEIGHT) / Math.tan(Math.toRadians(CAMERA_ANGLE + TargetY.get(0)));
+        double distanceFromTarget;
+        if(TargetY.size() > 0){
+            distanceFromTarget = (Target.TARGET_HEIGHT - CAMERA_HEIGHT) / Math.tan(Math.toRadians(CAMERA_ANGLE + TargetY.get(0)));
+        }
         return(distanceFromTarget);
     }
 
     public double findCameraAngle(double currentDistance, Target Target){ // Give the distance from a known target in inches
         // Camera Angle = arctan((Target Height - Camera Height) / Distance from Target) - Angle of Target Above Camera's Crosshair
-        double cameraAngle = Math.atan(Math.toRadians( ( (Target.TARGET_HEIGHT - CAMERA_HEIGHT) / currentDistance) - TargetY.get(0)));
-        System.out.println("Camera Angle" + cameraAngle);
+        double cameraAngle;
+        if(TargetY.size() > 0){
+            cameraAngle = Math.atan(Math.toRadians( ( (Target.TARGET_HEIGHT - CAMERA_HEIGHT) / currentDistance) - TargetY.get(0)));
+            System.out.println("Camera Angle" + cameraAngle);
+        }
         return(cameraAngle);
     }
 
     public double findTarget(){
-        boolean tv = TargetV.get(0);
+        boolean tv;
+        if(TargetV.size() > 0){
+            tv = TargetV.get(0);
+        }
 
         if(tv == true){ // If the target is not on the screen then spin towards it
             if(horizontalAngleFromTarget < 0){
@@ -241,15 +273,22 @@ public class SnailVision {
             horizontalAngleFromTarget = getRotationalAngle();
         }
         else if (useGyro == false){ // Track where the target last left the screen to turn towards there
-            if(TargetV.get(0) == true){ // Once the target is off screen, the function saves the last seen side 
-                horizontalAngleFromTarget = TargetX.get(0); 
+            if(TargetV.size() > 0){
+                if(TargetV.get(0) == true){ // Once the target is off screen, the function saves the last seen side 
+                    if(TargetX.size() > 0){
+                        horizontalAngleFromTarget = TargetX.get(0); 
+                    }
+                }
             }
         }
     }
 
     // The next 3 functions are used to record the target area to distance for distance estimation using area
     public void recordTargetArea(){ // Pressing a button loads area for that distance and removes outliers
-        double ta = TargetA.get(0);
+        double ta;
+        if(TargetA.size() > 0){
+            ta = TargetA.get(0);
+        }
         storedTargetAreaValues.add(ta);
         Collections.sort(storedTargetAreaValues); // Sorts the values so that the maximum and minimum could be found
         if(storedTargetAreaValues.size() > 50){ // Removes outliers on the very edges
@@ -334,9 +373,11 @@ public class SnailVision {
     // Gyroscope NavX functionality - Included in SnailVision so that gyro works even if it is nowhere else in the project
     public void gyroFunctionality(){
         // Used for tracking the target offscreen
-        if(TargetV.get(0) == true){
-            resetRotationalAngle(); // Make the front of robot's current position 0
-            resetAngle -= TargetX.get(0); // Changes the robot's current position to the center of the target
+        if(TargetV.size() > 0 && TargetX.size() > 0){
+            if(TargetV.get(0) == true){
+                resetRotationalAngle(); // Make the front of robot's current position 0
+                resetAngle -= TargetX.get(0); // Changes the robot's current position to the center of the target
+            }
         }
 
         // Allows the user to see how long the RoboRIO delays between iterations if printIterationTime = true
@@ -413,4 +454,4 @@ public class SnailVision {
             System.out.print(Timer.get() + ", ");
         }
     }
-}
+} 
