@@ -50,8 +50,8 @@ public class SnailVision {
     public String rotationalAxis; // Yaw - navx is flat pointing forward Pitch - navx is vertical pointing forward Roll - navx is vertical pointing sideways
     public AHRS navx;
     public double resetAngle;
-    public double currentAccelleration;
-    public double pastAccelleration; // 1 iteration behind
+    public double currentAcceleration;
+    public double pastAcceleration; // 1 iteration behind
     public Timer Timer;
     public double instantaneousJerk;
     public double JERK_COLLISION_THRESHOLD; // What the jerk has to be for it to be considered a collision
@@ -74,8 +74,8 @@ public class SnailVision {
         if(useGyro == true){
             rotationalAxis = "yaw"; // Default is yaw
             navx = new AHRS(Port.kMXP);
-            pastAccelleration = 0;
-            currentAccelleration = 0;
+            pastAcceleration = 0;
+            currentAcceleration = 0;
             Timer = new Timer();
             Timer.start();
             printIterationTime = false;
@@ -153,10 +153,10 @@ public class SnailVision {
     public double getInDistance(Target Target){ // targetHeightLevel is used for if there are multiple levels of targets 
         double currentDistance = 0;
 
-        if(DISTANCE_ESTIMATION_METHOD == "area"){
+        if(DISTANCE_ESTIMATION_METHOD.equals("area")){
             currentDistance = areaDistance(Target);
         }
-        else if(DISTANCE_ESTIMATION_METHOD == "trig"){
+        else if(DISTANCE_ESTIMATION_METHOD("trig")){
             currentDistance = trigDistance(Target);
         }
         else{
@@ -345,13 +345,13 @@ public class SnailVision {
     }
     
     public double getRotationalAngle(){ // Angle of the robot as it rotates
-        if(rotationalAxis == "yaw"){
+        if(rotationalAxis.equals("yaw")){
             return getYawAngle(); // Even though yaw has a reset funciton it is used with resetAngle so that an origin could be set
         }
-        else if(rotationalAxis == "roll"){
+        else if(rotationalAxis.equals("roll")){
             return getRollAngle(); // resetAngle is here to act as a reset function
         }
-        else if(rotationalAxis == "pitch"){
+        else if(rotationalAxis.equals("pitch")){
             return getPitchAngle(); // resetAngle is here to act as a reset function
         }
         else{
@@ -360,13 +360,13 @@ public class SnailVision {
     }
 
     public void resetRotationalAngle(){
-        if(rotationalAxis == "yaw"){
+        if(rotationalAxis.equals("yaw")){
             resetAngle = navx.getYaw(); // Even though yaw has a reset funciton it is used like this so that an origin could be set
         }
-        else if(rotationalAxis == "roll"){
+        else if(rotationalAxis.equals("roll")){
             resetAngle = navx.getRoll();
         }
-        else if(rotationalAxis == "pitch"){
+        else if(rotationalAxis.equals("pitch")){
             resetAngle = navx.getPitch();
         }
     }
@@ -383,14 +383,14 @@ public class SnailVision {
         return (navx.getPitch() - resetAngle);
     }
 
-    public double getAccelleration() {
-        if(rotationalAxis == "yaw"){
+    public double getAcceleration() {
+        if(rotationalAxis.equals("yaw")){
            return(navx.getRawAccelX());
         }
-        else if(rotationalAxis == "roll"){
+        else if(rotationalAxis.equals("roll")){
             return(navx.getRawAccelY());
         }
-        else if(rotationalAxis == "pitch"){
+        else if(rotationalAxis.equals("pitch")){
             return(navx.getRawAccelZ());
         }   
         else{
@@ -399,9 +399,9 @@ public class SnailVision {
     }
 
     public double calculateJerk(){
-        pastAccelleration = currentAccelleration;
-        currentAccelleration = getAccelleration();
-        double jerk = (pastAccelleration - currentAccelleration) / Timer.get(); // Change in accelleration = jerk
+        pastAcceleration = currentAcceleration;
+        currentAcceleration = getAcceleration();
+        double jerk = (pastAcceleration - currentAcceleration) / Timer.get(); // Change in accelleration = jerk
         Timer.reset();
         return(jerk);
     }
