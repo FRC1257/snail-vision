@@ -6,12 +6,14 @@
 package frc.util.snail_vision;
 
 import edu.wpi.first.networktables.*;
+import frc.util.snail_vision.*;
 
 import com.kauailabs.navx.frc.*;
 
 import java.util.*;
 import edu.wpi.first.wpilibj.I2C.Port;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.DriverStation;
 
 public class SnailVision {
     
@@ -457,4 +459,5 @@ public class SnailVision {
             System.out.print(Timer.get() + ", ");
         }
     }
+    
 } 
