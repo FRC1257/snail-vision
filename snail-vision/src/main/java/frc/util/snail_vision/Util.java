@@ -5,7 +5,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 public class Util{
 
     public Util(){
-                
+
     }
     
     // Utility functions

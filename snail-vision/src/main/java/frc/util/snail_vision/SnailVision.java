@@ -13,7 +13,6 @@ import com.kauailabs.navx.frc.*;
 import java.util.*;
 import edu.wpi.first.wpilibj.I2C.Port;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.DriverStation;
 
 public class SnailVision {
     
@@ -156,6 +155,9 @@ public class SnailVision {
         if(TargetX.size() > 0){
             tx = TargetX.get(0); // Gets the angle of how far away from the corsshair the object is
         }
+        else{
+            Util.printError("ArrayLists are missing values. A function is called before the SnailVision object gets values from the camera.");
+        }
 
         double Kf = ANGLE_CORRECT_F;  // Minimum motor input to move robot in case P can't do it 
         double Kp = ANGLE_CORRECT_P; // for PID
@@ -227,6 +229,9 @@ public class SnailVision {
                 return(0);
             }
         }
+        else{
+            Util.printError("ArrayLists are missing values. A function is called before the SnailVision object gets values from the camera.");
+        }
     return(0);
     }
 
@@ -235,6 +240,9 @@ public class SnailVision {
         double distanceFromTarget = 0;
         if(TargetY.size() > 0){
             distanceFromTarget = (Target.TARGET_HEIGHT - CAMERA_HEIGHT) / Math.tan(Math.toRadians(CAMERA_ANGLE + TargetY.get(0)));
+        }
+        else{
+            Util.printError("ArrayLists are missing values. A function is called before the SnailVision object gets values from the camera.");
         }
         return(distanceFromTarget);
     }
@@ -247,7 +255,7 @@ public class SnailVision {
             System.out.println("Camera Angle" + cameraAngle);
         }
         else{
-            System.out.println("Error! TargetY has no values");
+            Util.printError("ArrayLists are missing values. A function is called before the SnailVision object gets values from the camera.");
         }
         return(cameraAngle);
     }
@@ -256,6 +264,9 @@ public class SnailVision {
         boolean tv = true;
         if(TargetV.size() > 0){
             tv = TargetV.get(0);
+        }
+        else{
+            Util.printError("ArrayLists are missing values. A function is called before the SnailVision object gets values from the camera.");
         }
 
         if(tv == false){ // If the target is not on the screen then spin towards it
@@ -294,6 +305,9 @@ public class SnailVision {
         if(TargetA.size() > 0){
             ta = TargetA.get(0);
         }
+        else{
+            Util.printError("ArrayLists are missing values. A function is called before the SnailVision object gets values from the camera.");
+        }
         storedTargetAreaValues.add(ta);
         Collections.sort(storedTargetAreaValues); // Sorts the values so that the maximum and minimum could be found
         if(storedTargetAreaValues.size() > 50){ // Removes outliers on the very edges
@@ -323,8 +337,11 @@ public class SnailVision {
         for(int i = 0; i < targetAreaValues.size() - 1; i++){
             System.out.print(targetAreaValues.get(i) + ", ");
         }
-        if(targetAreaValues.size() > 0){ // So that if a user presses the button without first saving any valeus the program does not crash
+        if(targetAreaValues.size() > 0){ // So that if a user presses the button without first saving any values the program does not crash
             System.out.println(targetAreaValues.get(targetAreaValues.size() - 1)); // Just used to print out data so that it could easily be copy and pasted into array format
+        }
+        else{
+            Util.printError("No target areas have been recorded yet and so they cannot be printed out yet.");
         }
     }
 
@@ -383,6 +400,9 @@ public class SnailVision {
                 resetRotationalAngle(); // Make the front of robot's current position 0
                 resetAngle -= TargetX.get(0); // Changes the robot's current position to the center of the target
             }
+        }
+        else{
+            Util.printError("ArrayLists are missing values. A function is called before the SnailVision object gets values from the camera.");
         }
 
         // Allows the user to see how long the RoboRIO delays between iterations if printIterationTime = true
@@ -459,5 +479,5 @@ public class SnailVision {
             System.out.print(Timer.get() + ", ");
         }
     }
-    
+
 } 
