@@ -42,6 +42,7 @@ public class SnailVision {
     public ArrayList<Double> TargetHorizontal; // Horizontal length of the fitted bounding box
     public ArrayList<Double> TargetVertical; // Vertical length of the fitted bounding box
     public ArrayList<Byte> currentPipeline; // Array because it might be used when switching pipeline
+    public int retainedData;
 
     public  ArrayList<Target> TARGETS = new ArrayList<Target>();
 
@@ -69,7 +70,8 @@ public class SnailVision {
         TargetHorizontal = new ArrayList<Double>(); // Horizontal length of the fitted bounding box
         TargetVertical = new ArrayList<Double>(); // Vertical length of the fitted bounding box
         currentPipeline = new ArrayList<Byte>(); // Array because it might be used when switching pipeline. Byte saves RAM
-        
+        retainedData = 60;
+
         useGyro = utilizeGyro;
         if(useGyro == true){
             rotationalAxis = "yaw"; // Default is yaw
@@ -116,18 +118,18 @@ public class SnailVision {
         TargetVertical.add(0, tvertE.getDouble(0)); // Vertical length of the fitted bounding box
         currentPipeline.add(0, (byte) tgetpipeE.getDouble(0));
             
-        if(TargetX.size() > 60){ // Removes the last entry in the arraylist and shifts over the rest
-            TargetX.remove(60); // Target's angle on the x-axis 
-            TargetY.remove(60); // Target's angle on the y-axis 
-            TargetA.remove(60); // Target's area on the screen
-            TargetV.remove(60); // Target's visibility on the screen 
-            TargetS.remove(60); // Target's skew/rotation on the screen
-            Latency.remove(60); // Latency of the camera in miliseconds
-            TargetShort.remove(60); // Sidelength of shortest side of the fitted bounding box (pixels)
-            TargetLong.remove(60); // Sidelength of longest side of the fitted bounding box (pixels)
-            TargetHorizontal.remove(60); // Horizontal length of the fitted bounding box
-            TargetVertical.remove(60); // Vertical length of the fitted bounding box
-            currentPipeline.remove(60); // Array because it might be used when switching pipeline
+        if(TargetX.size() > retainedData){ // Removes the last entry in the arraylist and shifts over the rest
+            TargetX.remove(retainedData); // Target's angle on the x-axis 
+            TargetY.remove(retainedData); // Target's angle on the y-axis 
+            TargetA.remove(retainedData); // Target's area on the screen
+            TargetV.remove(retainedData); // Target's visibility on the screen 
+            TargetS.remove(retainedData); // Target's skew/rotation on the screen
+            Latency.remove(retainedData); // Latency of the camera in miliseconds
+            TargetShort.remove(retainedData); // Sidelength of shortest side of the fitted bounding box (pixels)
+            TargetLong.remove(retainedData); // Sidelength of longest side of the fitted bounding box (pixels)
+            TargetHorizontal.remove(retainedData); // Horizontal length of the fitted bounding box
+            TargetVertical.remove(retainedData); // Vertical length of the fitted bounding box
+            currentPipeline.remove(retainedData); // Array because it might be used when switching pipeline
         }
     }
 
