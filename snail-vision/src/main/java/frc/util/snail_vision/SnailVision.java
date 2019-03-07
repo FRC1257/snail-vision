@@ -150,8 +150,9 @@ public class SnailVision {
     }
 
     public double angleCorrect(){
+        double tx = 0;
         if(TargetX.size() > 0){
-            double tx = TargetX.get(0); // Gets the angle of how far away from the corsshair the object is
+            tx = TargetX.get(0); // Gets the angle of how far away from the corsshair the object is
         }
 
         double Kf = ANGLE_CORRECT_F;  // Minimum motor input to move robot in case P can't do it 
@@ -194,43 +195,42 @@ public class SnailVision {
     }
     
     public double areaDistance(Target Target){ // Returns inches significant up to the tenths place
-        if(TargetA.size() > 0){
+        if(TargetA.size() > 0 && TargetV.size() > 2){ // Checks for errors
             double ta = TargetA.get(0);
-        }
-        if(TargetV.size() > 2){
             boolean tv0 = TargetV.get(0); // Looks back 3 frames to see if the target was on the screen just to make sure that the limelight glitched and did not see the target for a split second
             boolean tv1 = TargetV.get(1);
             boolean tv2 = TargetV.get(2);
-        }
 
-        double minDifference = 10000; // Just so that it finds a smaller value
-        int minIndex = Target.AREA_PERCENT_MEASUREMENTS - 1; // The indexes of the array of percentages is the distance that the robot is from the target in inches
-         if(tv0 == true || tv1 == true || tv2 == true){ // If the target is on screen in the past 3 frames
-            for(int i = 0; i < Target.AREA_PERCENT_MEASUREMENTS - 1; i++){
-                if(Target.AREA_TO_DISTANCE[i] - ta < minDifference && Target.AREA_TO_DISTANCE[i] - ta > 0){ // Finds the smallest difference in areas to find the distance the robot is from the target
-                    minDifference = Target.AREA_TO_DISTANCE[i] - ta;
-                    minIndex = i; 
+            double minDifference = 10000; // Just so that it finds a smaller value
+            int minIndex = Target.AREA_PERCENT_MEASUREMENTS - 1; // The indexes of the array of percentages is the distance that the robot is from the target in inches
+            if(tv0 == true || tv1 == true || tv2 == true){ // If the target is on screen in the past 3 frames
+                for(int i = 0; i < Target.AREA_PERCENT_MEASUREMENTS - 1; i++){
+                    if(Target.AREA_TO_DISTANCE[i] - ta < minDifference && Target.AREA_TO_DISTANCE[i] - ta > 0){ // Finds the smallest difference in areas to find the distance the robot is from the target
+                        minDifference = Target.AREA_TO_DISTANCE[i] - ta;
+                        minIndex = i; 
+                    }
                 }
-            }
 
-            // Finds the average of the area between the two recorded constant points to find the average inch measurement in between
-            if(ta > Target.AREA_TO_DISTANCE[minIndex]){
-                minIndex += (ta - Target.AREA_TO_DISTANCE[minIndex]) / (Target.AREA_TO_DISTANCE[minIndex + 1] - Target.AREA_TO_DISTANCE[minIndex]);
-            }
-            else if (ta < Target.AREA_TO_DISTANCE[minIndex]){
-                minIndex += 1 - (Target.AREA_TO_DISTANCE[minIndex] - ta) / (Target.AREA_TO_DISTANCE[minIndex + 1] - Target.AREA_TO_DISTANCE[minIndex]);
-            }
+                // Finds the average of the area between the two recorded constant points to find the average inch measurement in between
+                if(ta > Target.AREA_TO_DISTANCE[minIndex]){
+                    minIndex += (ta - Target.AREA_TO_DISTANCE[minIndex]) / (Target.AREA_TO_DISTANCE[minIndex + 1] - Target.AREA_TO_DISTANCE[minIndex]);
+                }
+                else if (ta < Target.AREA_TO_DISTANCE[minIndex]){
+                    minIndex += 1 - (Target.AREA_TO_DISTANCE[minIndex] - ta) / (Target.AREA_TO_DISTANCE[minIndex + 1] - Target.AREA_TO_DISTANCE[minIndex]);
+                }
 
-            return(minIndex);
+                return(minIndex);
+            }
+            else{ // If there is no target on the screen then return 0 as a distance so that the robot does not do something unexpected
+                return(0);
+            }
         }
-        else{ // If there is no target on the screen then return 0 as a distance so that the robot does not do something unexpected
-            return(0);
-        }
+    return(0);
     }
 
     public double trigDistance(Target Target){ // More accurate than area distance but the target has to be high in the air above the camera
         // Distance from Target = (Target Height - Camera Height) / tan(Angle of the Camera + Angle of the target above the Crosshair)
-        double distanceFromTarget;
+        double distanceFromTarget = 0;
         if(TargetY.size() > 0){
             distanceFromTarget = (Target.TARGET_HEIGHT - CAMERA_HEIGHT) / Math.tan(Math.toRadians(CAMERA_ANGLE + TargetY.get(0)));
         }
@@ -239,21 +239,24 @@ public class SnailVision {
 
     public double findCameraAngle(double currentDistance, Target Target){ // Give the distance from a known target in inches
         // Camera Angle = arctan((Target Height - Camera Height) / Distance from Target) - Angle of Target Above Camera's Crosshair
-        double cameraAngle;
+        double cameraAngle = 0;
         if(TargetY.size() > 0){
             cameraAngle = Math.atan(Math.toRadians( ( (Target.TARGET_HEIGHT - CAMERA_HEIGHT) / currentDistance) - TargetY.get(0)));
             System.out.println("Camera Angle" + cameraAngle);
+        }
+        else{
+            System.out.println("Error! TargetY has no values");
         }
         return(cameraAngle);
     }
 
     public double findTarget(){
-        boolean tv;
+        boolean tv = true;
         if(TargetV.size() > 0){
             tv = TargetV.get(0);
         }
 
-        if(tv == true){ // If the target is not on the screen then spin towards it
+        if(tv == false){ // If the target is not on the screen then spin towards it
             if(horizontalAngleFromTarget < 0){
                 return(-0.5);
             }
@@ -285,7 +288,7 @@ public class SnailVision {
 
     // The next 3 functions are used to record the target area to distance for distance estimation using area
     public void recordTargetArea(){ // Pressing a button loads area for that distance and removes outliers
-        double ta;
+        double ta = 0;
         if(TargetA.size() > 0){
             ta = TargetA.get(0);
         }
