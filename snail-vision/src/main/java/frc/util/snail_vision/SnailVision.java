@@ -11,7 +11,7 @@ import frc.util.snail_vision.*;
 import com.kauailabs.navx.frc.*;
 
 import java.util.*;
-import edu.wpi.first.wpilibj.I2C.Port;
+import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.Timer;
 
 public class SnailVision {
@@ -90,7 +90,7 @@ public class SnailVision {
         useGyro = utilizeGyro;
         if(useGyro == true){
             rotationalAxis = "yaw"; // Default is yaw
-            navx = new AHRS(Port.kMXP);
+            navx = new AHRS(SPI.Port.kMXP);
             pastAcceleration = 0;
             currentAcceleration = 0;
             Timer = new Timer();
