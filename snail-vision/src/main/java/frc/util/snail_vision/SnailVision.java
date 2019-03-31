@@ -58,6 +58,7 @@ public class SnailVision {
     public double instantaneousJerk;
     public double JERK_COLLISION_THRESHOLD; // What the jerk has to be for it to be considered a collision
     public boolean printIterationTime;
+    public double JERK_CALCULATION_RATE; // seconds
 
     public SnailVision(boolean utilizeGyro){
         retainedData = 60;
@@ -96,6 +97,7 @@ public class SnailVision {
             Timer = new Timer();
             Timer.start();
             printIterationTime = false;
+            JERK_CALCULATION_RATE = 0.01; // 0.01 seconds per calculation by default
         }
     }
 
@@ -467,11 +469,13 @@ public class SnailVision {
     }
 
     public double calculateJerk(){
-        pastAcceleration = currentAcceleration;
-        currentAcceleration = getAcceleration();
-        double jerk = (pastAcceleration - currentAcceleration) / Timer.get(); // Change in accelleration = jerk
-        Timer.reset();
-        return(jerk);
+        if(Timer.get() > 0.1){
+            currentAcceleration = getAcceleration();
+            instantaneousJerk = (pastAcceleration - currentAcceleration) / Timer.get(); // Change in accelleration = jerk
+            Timer.reset();
+            pastAcceleration = currentAcceleration;
+        }
+        return(instantaneousJerk);
     }
 
     public void printIterationTime(){
