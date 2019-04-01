@@ -97,7 +97,7 @@ public class SnailVision {
             Timer = new Timer();
             Timer.start();
             printIterationTime = false;
-            JERK_CALCULATION_RATE = 0.01; // 0.01 seconds per calculation by default
+            JERK_CALCULATION_RATE = 0.001; // 0.01 seconds per calculation by default
         }
     }
 
