@@ -1,17 +1,21 @@
-// snail-vision Version 1.0.0 Updated 4/2/19
+// snail-vision Version 1.0.0 Last Updated 4/2/2019
 
 package frc.robot;
 
-import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.*;
+import edu.wpi.first.networktables.*;
+import java.util.ArrayList;
+import com.kauailabs.navx.frc.*;
 import frc.util.snail_vision.*;
 import edu.wpi.first.wpilibj.drive.*;
 import edu.wpi.first.wpilibj.*;
+import edu.wpi.first.networktables.*;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
+import java.util.*;
+import java.io.*;
 
 public class Robot extends TimedRobot {
-
   WPI_TalonSRX FrontRight;
   WPI_TalonSRX FrontLeft;
   WPI_TalonSRX BackRight;
@@ -20,33 +24,59 @@ public class Robot extends TimedRobot {
   SpeedControllerGroup Left;
   DifferentialDrive DriveTrain;
   XboxController Controller;
-
-  SnailVision vision = new SnailVision(true);
   double driveSpeed;
   double turnSpeed;
-  double colliding;
+  SnailVision vision;
 
   @Override
   public void robotInit() {
-    
-    colliding = 0;
+    FrontLeft = new WPI_TalonSRX(1);
+        BackLeft = new WPI_TalonSRX(2);
+        BackRight = new WPI_TalonSRX(3);
+        FrontRight = new WPI_TalonSRX(4);
 
-    FrontLeft = new WPI_TalonSRX(2);
-    BackLeft = new WPI_TalonSRX(3);
-    BackRight = new WPI_TalonSRX(4);
-    FrontRight = new WPI_TalonSRX(5);
+        Right = new SpeedControllerGroup(FrontRight, BackRight);
+        Left = new SpeedControllerGroup(FrontLeft, BackLeft);
 
-    Right = new SpeedControllerGroup(FrontRight, BackRight);
-    Left = new SpeedControllerGroup(FrontLeft, BackLeft);
+        DriveTrain = new DifferentialDrive(Left, Right);
 
-    DriveTrain = new DifferentialDrive(Left, Right);
+        Controller = new XboxController(0);
 
-    Controller = new XboxController(0);
+        driveSpeed = 0;
+        turnSpeed = 0;
+
+        vision = new SnailVision(true);
   }
 
   @Override
   public void robotPeriodic() {
-
+    // Basic Teleop Drive Code
+    vision.gyroFunctionality();
+    vision.trackTargetPosition();
+    driveSpeed = 0;
+    turnSpeed = 0;
+    if(Controller.getAButton()) {
+          double y = Controller.getY(GenericHID.Hand.kLeft);
+          double x = Controller.getX(GenericHID.Hand.kLeft);
+          driveSpeed = -y;
+          turnSpeed = x;
+      } 
+      else if(Controller.getBumper(GenericHID.Hand.kLeft)) {
+          double y = Controller.getY(GenericHID.Hand.kLeft);
+          double x = Controller.getX(GenericHID.Hand.kRight);
+          driveSpeed = -y;
+          turnSpeed = x;
+      } 
+      else if(Controller.getBumper(GenericHID.Hand.kRight)) {
+          double x = Controller.getX(GenericHID.Hand.kLeft);
+          double y = Controller.getY(GenericHID.Hand.kRight);
+          driveSpeed = -y;
+          turnSpeed = x;
+      }
+      if(Controller.getBButton()){
+        vision.findTarget();
+      }
+      DriveTrain.arcadeDrive(driveSpeed, turnSpeed);
   }
 
   @Override
@@ -61,42 +91,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopPeriodic() {
-
-    vision.calculateJerk();
-    SmartDashboard.putNumber("jerk", vision.instantaneousJerk);
-    SmartDashboard.putNumber("velocity", vision.navx.getVelocityX());
-    SmartDashboard.putNumber("acceleration", vision.getAcceleration());
-    if(vision.instantaneousJerk > 10){
-      colliding = 1;
-    }
-    else{
-      colliding = 0;
-    }
-    SmartDashboard.putNumber("colliding", colliding);
-
-    driveSpeed = 0;
-    turnSpeed = 0;
-
-    if(Controller.getAButton()) {
-      double y = Controller.getY(GenericHID.Hand.kLeft);
-      double x = Controller.getX(GenericHID.Hand.kLeft);
-      driveSpeed = -y;
-      turnSpeed = x;
-    } 
-    else if(Controller.getBumper(GenericHID.Hand.kLeft)) {
-        double y = Controller.getY(GenericHID.Hand.kLeft);
-        double x = Controller.getX(GenericHID.Hand.kRight);
-        driveSpeed = -y;
-        turnSpeed = x;
-    } 
-    else if(Controller.getBumper(GenericHID.Hand.kRight)) {
-        double x = Controller.getX(GenericHID.Hand.kLeft);
-        double y = Controller.getY(GenericHID.Hand.kRight);
-        driveSpeed = -y;
-        turnSpeed = x;
-    }
-
-    DriveTrain.arcadeDrive(driveSpeed, turnSpeed);
+    
   }
 
   @Override
