@@ -76,8 +76,6 @@ public class SnailVision {
             currentPipeline.add((byte) 0);
         }
 
-    }
-
     public void networkTableFunctionality(NetworkTable Table){ // Works with limelight!
         // NetworkTable Table = NetworkTableInstance.getDefault().getTable("limelight");
         
@@ -250,10 +248,10 @@ public class SnailVision {
 
         if(tv == false){ // If the target is not on the screen then spin towards it
             if(horizontalAngleFromTarget < 0){
-                return(-0.5);
+                return(-0.2);
             }
             else if(horizontalAngleFromTarget > 0){
-                return(0.5);
+                return(0.2);
             }
         }
         else if (tv == true){ // If the target is on the screen then auto-aim towards it
