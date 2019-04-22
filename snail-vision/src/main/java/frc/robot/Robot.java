@@ -1,5 +1,3 @@
-// snail-vision Version 1.0.0 Last Updated 4/2/2019
-
 package frc.robot;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;

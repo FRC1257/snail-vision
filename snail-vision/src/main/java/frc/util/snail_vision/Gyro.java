@@ -33,23 +33,6 @@ public class Gyro {
             JERK_CALCULATION_RATE = 0.01; // 0.01 seconds per calculation by default
         }
     }
-
-    // Gyroscope NavX functionality - Included in SnailVision so that gyro works even if it is nowhere else in the project
-    public void gyroFunctionality(){
-        // Used for tracking the target offscreen
-        if(TargetV.size() > 0 && TargetX.size() > 0){
-            if(TargetV.get(0) == true){
-                resetRotationalAngle(); // Make the front of robot's current position 0
-                resetAngle -= TargetX.get(0); // Changes the robot's current position to the center of the target
-            }
-        }
-        else{
-            Util.printError("ArrayLists are missing values. A function is called before the SnailVision object gets values from the camera.");
-        }
-
-        // Used for jerk and collision detection
-        instantaneousJerk = calculateJerk();
-    }
     
     public double getRotationalAngle(){ // Angle of the robot as it rotates
         if(rotationalAxis.equals("yaw")){

@@ -48,7 +48,11 @@ public class SnailVision {
 
     public  ArrayList<Target> TARGETS = new ArrayList<Target>();
 
+    public Gyro Gyro;
+
     public SnailVision(boolean utilizeGyro){
+        Gyro = new Gyro(utilizeGyro);
+
         retainedData = 60;
         TargetX = new ArrayList<Double>(); // Target's angle on the x-axis 
         TargetY = new ArrayList<Double>(); // Target's angle on the y-axis 
@@ -75,6 +79,7 @@ public class SnailVision {
             TargetVertical.add(0.0);
             currentPipeline.add((byte) 0);
         }
+    }
 
     public void networkTableFunctionality(NetworkTable Table){ // Works with limelight!
         // NetworkTable Table = NetworkTableInstance.getDefault().getTable("limelight");
@@ -262,10 +267,10 @@ public class SnailVision {
     }
 
     public void trackTargetPosition(){
-        if(useGyro == true){ // Track where the target is to turn towards it quicker
-            horizontalAngleFromTarget = getRotationalAngle();
+        if(Gyro.useGyro == true){ // Track where the target is to turn towards it quicker
+            horizontalAngleFromTarget = Gyro.getRotationalAngle();
         }
-        else if (useGyro == false){ // Track where the target last left the screen to turn towards there
+        else if (Gyro.useGyro == false){ // Track where the target last left the screen to turn towards there
             if(TargetV.size() > 0){
                 if(TargetV.get(0) == true){ // Once the target is off screen, the function saves the last seen side 
                     if(TargetX.size() > 0){
