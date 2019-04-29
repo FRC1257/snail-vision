@@ -35,12 +35,12 @@ public class Gyro {
     }
 
     // Gyroscope NavX functionality - Included in SnailVision so that gyro works even if it is nowhere else in the project
-    public void gyroFunctionality(){
+    public void gyroFunctionality(SnailVision SnailVision){
         // Used for tracking the target offscreen
-        if(TargetV.size() > 0 && TargetX.size() > 0){
-            if(TargetV.get(0) == true){
+        if(SnailVision.TargetV.size() > 0 && SnailVision.TargetX.size() > 0){
+            if(SnailVision.TargetV.get(0) == true){
                 resetRotationalAngle(); // Make the front of robot's current position 0
-                resetAngle -= TargetX.get(0); // Changes the robot's current position to the center of the target
+                resetAngle -= SnailVision.TargetX.get(0); // Changes the robot's current position to the center of the target
             }
         }
         else{
