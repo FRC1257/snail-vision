@@ -1,4 +1,4 @@
-// Version 1.0.4 Last Updated 4/29/2019
+// snail-vision Version 1.0.4 Last Updated 4/29/2019
 /*
  * Created by Adam Zamlynny
  * Contact: azamlynny@hotmail.com
@@ -78,7 +78,6 @@ public class SnailVision {
             TargetVertical.add(0.0);
             currentPipeline.add((byte) 0);
         }
-
     }
 
     public void networkTableFunctionality(NetworkTable Table){ // Works with limelight!
@@ -253,10 +252,10 @@ public class SnailVision {
 
         if(tv == false){ // If the target is not on the screen then spin towards it
             if(horizontalAngleFromTarget < 0){
-                return(-0.5);
+                return(-0.2);
             }
             else if(horizontalAngleFromTarget > 0){
-                return(0.5);
+                return(0.2);
             }
         }
         else if (tv == true){ // If the target is on the screen then auto-aim towards it
@@ -324,53 +323,6 @@ public class SnailVision {
         }
         else{
             Util.printError("No target areas have been recorded yet and so they cannot be printed out yet.");
-        }
-    }
-
-    // NetworkTable functions are below
-
-    public static void changePipeline(NetworkTable Table, int pipeline){
-        if(pipeline < 0 || pipeline > 9){
-            pipeline = 0; // In case that someone tries to switch to an impossible pipeline then set it to default.
-        }
-        Table.getEntry("pipeline").setNumber(pipeline);
-    }
-
-    // Limelight ONLY functions
-
-    public static void toggleLimelightScreenshot(NetworkTable Table){ // Takes 2 screenshots per second
-        if(Table.getEntry("snapshot").getDouble(0) == 0){ // If the camera is not taking screenshots currently
-            Table.getEntry("snapshot").setNumber(1);
-        }
-        else if(Table.getEntry("snapshot").getDouble(0) == 1){ // If the camera is taking screenshots currently
-            Table.getEntry("snapshot").setNumber(0);
-        }
-    }
-
-    public static void turnOffLimelight(NetworkTable Table){
-        if(Table.getEntry("ledMode").getDouble(0) != 1){
-            Table.getEntry("ledMode").setNumber(1);
-        }
-    }
-
-    public static void turnOnLimelight(NetworkTable Table){
-        if(Table.getEntry("ledMode").getDouble(0) != 3){
-            Table.getEntry("ledMode").setNumber(3);
-        }
-    }
-
-    public static void blinkLimelight(NetworkTable Table){
-        if(Table.getEntry("ledMode").getDouble(0) != 2){
-            Table.getEntry("ledMode").setNumber(2);
-        }
-    }
-
-    public static void toggleLimelightMode(NetworkTable Table){ // 0 = vision processing 1 = drive camera
-        if(Table.getEntry("camMode").getDouble(0) == 0){
-            Table.getEntry("camMode").setNumber(1);
-        }
-        else if(Table.getEntry("camMode").getDouble(0) == 1){
-            Table.getEntry("camMode").setNumber(0);
         }
     }
 
