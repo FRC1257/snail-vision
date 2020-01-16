@@ -150,7 +150,12 @@ public class SnailVision {
         } 
         else if (tx < ANGLE_CORRECT_MIN_ANGLE) // If angle fo the target is less than n degrees, the motor will not be able to move the robot due to friction, so Kf is added to give it the minimum speed to move
         {
-            steering_adjust = Kp * heading_error + Kf;
+            if(tx >= 0){ // Check depending on which way the robot needs to turn
+                steering_adjust = Kp * heading_error + Kf;
+            }
+            else{
+                steering_adjust = Kp * heading_error - Kf;
+            }
         }
 
         return(-steering_adjust); // return motor output
